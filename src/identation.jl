@@ -24,6 +24,7 @@ increaseIndentPattern = ["if","while","for","function","macro","immutable",
 decreaseIndentPattern = ["end","else","elseif","catch","finally"]
 
 using Tokenize
+using Lint
 
 function countwhitespaces(inpstr)
     tok = tokenize(inpstr)
@@ -60,6 +61,22 @@ function countidentations(inpstr)
         end
         if string(i.kind) == "WHITESPACE" && (i.endpos[1] > i.startpos[1])
             output[line] = indentation
+        end
+    end
+    output
+end
+
+function lintidentation(ctx::LintContext, lint_str)
+    whitespaces = countwhitespaces(lint_str)
+    indentations = countidentations(lint_str)
+    lines = keys(whitespaces)
+    output = []
+    for line in lines
+        actual = whitespaces[line]
+        expected = indentations[line]
+        if actual != expected
+            text = "expected indentation $expected is $actual"
+            push!(output, msg(ctx, :I772, text))
         end
     end
     output
