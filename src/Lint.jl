@@ -46,6 +46,7 @@ include("misc.jl")
 include("init.jl")
 include("result.jl")
 include("dynamic.jl")
+include("indentation.jl")
 
 function lintpkg{T<:AbstractString}(pkg::T; returnMsgs=nothing)
     # FIXME: deprecated summer 2016, remove after reasonable amount of time
@@ -133,6 +134,8 @@ function lintfile(file::AbstractString, code::AbstractString)
 end
 
 function lintstr{T<:AbstractString}(str::T, ctx::LintContext = LintContext(), lineoffset = 0)
+    lintidentation(ctx, str)
+    lintlinelenght(ctx, str)
     linecharc = cumsum(map(x->endof(x)+1, @compat(split(str, "\n", keep=true))))
     numlines = length(linecharc)
     i = start(str)
